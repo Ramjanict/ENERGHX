@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![ENERGHX Banner](https://raw.githubusercontent.com/Ramjanict/energhx/main/public/images/smart-energy-dashboard.jpg)
+![ENERGHX Banner](https://raw.githubusercontent.com/Ramjanict/ENERGHX-/main/public/images/smart-energy-dashboard.jpg)
 
 **An enterprise-grade clean-tech web platform for thermal comfort modeling, indoor air quality simulation, renewable energy microgrid sizing, and net-zero energy management.**
 
@@ -33,7 +33,7 @@
 
 The application is deployed and accessible at:
 - **Live URL**: [https://energhx.vercel.app/](https://energhx.vercel.app/)
-- **Repository**: [https://github.com/Ramjanict/energhx](https://github.com/Ramjanict/energhx)
+- **Repository**: [https://github.com/Ramjanict/ENERGHX-](https://github.com/Ramjanict/ENERGHX-)
 
 ### 🔑 Demo Super Admin Credentials
 To access the full management portal, analytics dashboard, course assignments, and system approvals:
@@ -65,35 +65,35 @@ It provides an end-to-end ecosystem combining:
 ### 1. Smart Energy & Microgrid Dashboard
 > *Unified monitoring interface tracking real-time solar generation, wind power, battery storage levels, and net-zero carbon intensity.*
 
-![Smart Energy Dashboard](https://raw.githubusercontent.com/Ramjanict/energhx/main/public/images/smart-energy-dashboard.jpg)
+![Smart Energy Dashboard](https://raw.githubusercontent.com/Ramjanict/ENERGHX-/main/public/images/smart-energy-dashboard.jpg)
 
 ---
 
 ### 2. Net-Zero Energy Building (NZEB) Architecture
 > *Integrated architectural planning featuring rooftop solar arrays, vertical aero-turbines, smart building envelope, and clean-tech infrastructure.*
 
-![Net-Zero Green Building](https://raw.githubusercontent.com/Ramjanict/energhx/main/public/images/netzero-green-building.jpg)
+![Net-Zero Green Building](https://raw.githubusercontent.com/Ramjanict/ENERGHX-/main/public/images/netzero-green-building.jpg)
 
 ---
 
 ### 3. Hybrid Renewable Microgrid & Battery Storage (BESS)
 > *Industrial-scale battery energy storage systems coupled with solar photovoltaic fields and high-efficiency wind generation.*
 
-![Renewable Microgrid Farm](https://raw.githubusercontent.com/Ramjanict/energhx/main/public/images/renewable-microgrid-farm.jpg)
+![Renewable Microgrid Farm](https://raw.githubusercontent.com/Ramjanict/ENERGHX-/main/public/images/renewable-microgrid-farm.jpg)
 
 ---
 
 ### 4. Smart EV Charging & Fleet Infrastructure (ZEV)
 > *Solar canopy-powered high-speed electric vehicle charging hubs enabling zero-emission mobility.*
 
-![EV Charging Hub](https://raw.githubusercontent.com/Ramjanict/energhx/main/public/images/ev-charging-hub.jpg)
+![EV Charging Hub](https://raw.githubusercontent.com/Ramjanict/ENERGHX-/main/public/images/ev-charging-hub.jpg)
 
 ---
 
 ### 5. Thermal Comfort, Indoor Air Quality & HVAC Digital Twin
 > *3D digital twin visualization displaying thermal heat gradients, airflow dynamics, sensor telemetry, and air quality indexes.*
 
-![Thermal HVAC Twin](https://raw.githubusercontent.com/Ramjanict/energhx/main/public/images/thermal-hvac-twin.jpg)
+![Thermal HVAC Twin](https://raw.githubusercontent.com/Ramjanict/ENERGHX-/main/public/images/thermal-hvac-twin.jpg)
 
 ---
 
@@ -278,13 +278,13 @@ export const energhxProject: ClientProject = {
   category: "CleanTech & Energy SaaS",
   status: "Completed",
   image:
-    "https://raw.githubusercontent.com/Ramjanict/energhx/main/public/images/smart-energy-dashboard.jpg",
+    "https://raw.githubusercontent.com/Ramjanict/ENERGHX-/main/public/images/smart-energy-dashboard.jpg",
   images: [
-    "https://raw.githubusercontent.com/Ramjanict/energhx/main/public/images/smart-energy-dashboard.jpg",
-    "https://raw.githubusercontent.com/Ramjanict/energhx/main/public/images/netzero-green-building.jpg",
-    "https://raw.githubusercontent.com/Ramjanict/energhx/main/public/images/renewable-microgrid-farm.jpg",
-    "https://raw.githubusercontent.com/Ramjanict/energhx/main/public/images/ev-charging-hub.jpg",
-    "https://raw.githubusercontent.com/Ramjanict/energhx/main/public/images/thermal-hvac-twin.jpg",
+    "https://raw.githubusercontent.com/Ramjanict/ENERGHX-/main/public/images/smart-energy-dashboard.jpg",
+    "https://raw.githubusercontent.com/Ramjanict/ENERGHX-/main/public/images/netzero-green-building.jpg",
+    "https://raw.githubusercontent.com/Ramjanict/ENERGHX-/main/public/images/renewable-microgrid-farm.jpg",
+    "https://raw.githubusercontent.com/Ramjanict/ENERGHX-/main/public/images/ev-charging-hub.jpg",
+    "https://raw.githubusercontent.com/Ramjanict/ENERGHX-/main/public/images/thermal-hvac-twin.jpg",
   ],
   description:
     "An enterprise clean-tech platform providing thermal comfort modeling, indoor air quality simulation, renewable microgrid sizing, and end-to-end net-zero energy management for sustainable built environments.",
@@ -341,7 +341,7 @@ export const energhxProject: ClientProject = {
     "Net-Zero",
   ],
   liveUrl: "https://energhx.vercel.app/",
-  githubUrl: "https://github.com/Ramjanict/energhx",
+  githubUrl: "https://github.com/Ramjanict/ENERGHX-",
   timeline: "2025 - Present",
   role: "Frontend Engineer",
   teamMembers: [{ name: "Md Ramjan Ali", role: "Frontend Engineer" }],
@@ -358,7 +358,7 @@ export const energhxProject: ClientProject = {
 
 ### 1. Clone the Repository
 ```bash
-git clone https://github.com/Ramjanict/energhx.git
+git clone https://github.com/Ramjanict/ENERGHX-.git
 cd energhx
 ```
 

@@ -28,13 +28,13 @@ export const energhxProject: ClientProject = {
   category: "CleanTech & Energy SaaS",
   status: "Completed",
   image:
-    "https://raw.githubusercontent.com/Ramjanict/energhx/main/public/images/smart-energy-dashboard.jpg",
+    "https://raw.githubusercontent.com/Ramjanict/ENERGHX-/main/public/images/smart-energy-dashboard.jpg",
   images: [
-    "https://raw.githubusercontent.com/Ramjanict/energhx/main/public/images/smart-energy-dashboard.jpg",
-    "https://raw.githubusercontent.com/Ramjanict/energhx/main/public/images/netzero-green-building.jpg",
-    "https://raw.githubusercontent.com/Ramjanict/energhx/main/public/images/renewable-microgrid-farm.jpg",
-    "https://raw.githubusercontent.com/Ramjanict/energhx/main/public/images/ev-charging-hub.jpg",
-    "https://raw.githubusercontent.com/Ramjanict/energhx/main/public/images/thermal-hvac-twin.jpg",
+    "https://raw.githubusercontent.com/Ramjanict/ENERGHX-/main/public/images/smart-energy-dashboard.jpg",
+    "https://raw.githubusercontent.com/Ramjanict/ENERGHX-/main/public/images/netzero-green-building.jpg",
+    "https://raw.githubusercontent.com/Ramjanict/ENERGHX-/main/public/images/renewable-microgrid-farm.jpg",
+    "https://raw.githubusercontent.com/Ramjanict/ENERGHX-/main/public/images/ev-charging-hub.jpg",
+    "https://raw.githubusercontent.com/Ramjanict/ENERGHX-/main/public/images/thermal-hvac-twin.jpg",
   ],
   description:
     "An enterprise clean-tech platform providing thermal comfort modeling, indoor air quality simulation, renewable microgrid sizing, and end-to-end net-zero energy management for sustainable built environments.",
@@ -91,7 +91,7 @@ export const energhxProject: ClientProject = {
     "Net-Zero",
   ],
   liveUrl: "https://energhx.vercel.app/",
-  githubUrl: "https://github.com/Ramjanict/energhx",
+  githubUrl: "https://github.com/Ramjanict/ENERGHX-",
   timeline: "2025 - Present",
   role: "Frontend Engineer",
   teamMembers: [{ name: "Md Ramjan Ali", role: "Frontend Engineer" }],
