@@ -1,21 +1,23 @@
+import { BadgeCheck, CheckCircle, Download, X, XCircle } from "lucide-react";
 import React, { useRef } from "react";
-import { CheckCircle, XCircle, Download, BadgeCheck } from "lucide-react";
 
-import jsPDF from "jspdf";
+import { LoginData } from "@/store/auth/types/loginUser";
+import { QuizResult } from "@/store/LMS/progressAndCertificate/types/progressType";
 import html2canvas from "html2canvas";
-import { CertificateContent } from "@/store/AdminStore/type/certificated";
-import { SingleUser } from "@/store/AdminStore/type/myReview";
+import jsPDF from "jspdf";
 
 type CertificateCardProps = {
-  user: SingleUser;
-  certificate: CertificateContent[];
+  user: LoginData;
+  certificate: QuizResult[];
   calculatedMark: number | null;
+  setShowCertificate: (data: boolean) => void;
 };
 
 const CertificateCard: React.FC<CertificateCardProps> = ({
   user,
   certificate,
   calculatedMark,
+  setShowCertificate,
 }) => {
   const refs = useRef<(HTMLDivElement | null)[]>([]);
 
@@ -72,14 +74,21 @@ const CertificateCard: React.FC<CertificateCardProps> = ({
 
               <div className="flex-1">
                 <h2 className="text-2xl font-bold text-gray-800">
-                  {user.firstName} {user.lastName}
+                  {user.firstname} {user.lastname}
                 </h2>
                 <p className="text-sm text-gray-500">{user.email}</p>
                 <p className="text-sm text-gray-500 capitalize">
-                  {user.city}, {user.companyName}
+                  {user.country.name}, {user.othername}
                 </p>
               </div>
 
+              <button
+                onClick={() => setShowCertificate(false)}
+                className="no-print flex items-center gap-2 px-4 py-2 bg-red-500 text-white font-semibold rounded-lg  transition cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+                Cancel
+              </button>
               <button
                 onClick={() => handleDownload(index, cert.contentTitle)}
                 className="no-print flex items-center gap-2 px-4 py-2 bg-primary text-white font-semibold rounded-lg hover:bg-primary/90 transition cursor-pointer"
@@ -95,7 +104,7 @@ const CertificateCard: React.FC<CertificateCardProps> = ({
               <p className="text-gray-600 leading-relaxed italic">
                 This is to certify that{" "}
                 <span className="font-semibold text-gray-800">
-                  {user.firstName} {user.lastName}
+                  {user.firstname} {user.lastname}
                 </span>{" "}
                 has successfully completed the content titled{" "}
                 <span className="font-semibold text-primary">

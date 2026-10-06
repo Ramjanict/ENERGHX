@@ -1,11 +1,10 @@
-import { useParams } from "react-router-dom";
-import WordPressWrapper from "../Common/WordPressWrapper";
-import Header from "../Common/Header";
-import MotionImages from "../Common/MotionImages";
-import { dataLists } from "./ResearchGroup";
 import { PiDotOutlineFill } from "react-icons/pi";
-import ResearchCard from "./ResearchCard";
+import { useParams } from "react-router-dom";
 import Footer from "../Common/Footer";
+import MotionImages from "../Common/MotionImages";
+import WordPressWrapper from "../Common/WordPressWrapper";
+import ResearchCard from "./ResearchCard";
+import { dataLists } from "./ResearchGroup";
 const slugify = (str: string) =>
   str
     .toLowerCase()
@@ -17,15 +16,11 @@ const ResearchDetails = () => {
 
   const researcher = dataLists.find((item) => slugify(item.title) === title);
   const recommendedResearchers = dataLists.filter(
-    (item) => slugify(item.title) !== title
+    (item) => slugify(item.title) !== title,
   );
 
   return (
     <div>
-      <WordPressWrapper>
-        <Header />
-      </WordPressWrapper>
-
       <MotionImages title="RESEARCHERS" />
 
       {/* Selected Researcher Details */}

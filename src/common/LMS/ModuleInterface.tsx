@@ -1,4 +1,3 @@
-import React, { useEffect, useState } from "react";
 import {
   Accordion,
   AccordionContent,
@@ -6,56 +5,57 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { PlayCircle } from "lucide-react";
-import { useAdminStore } from "@/store/AdminStore/AdminStore";
-import CommonHeader from "../CommonHeader";
+import React, { useState } from "react";
+import CommonHeader from "../header/CommonHeader";
+
 import AddComment, { ReviewSchema } from "@/dashboard/components/AddComment";
 import ReviewCard from "@/dashboard/components/ReviewCard";
-
-import {
-  AllModule,
-  BasicContent,
-  Module,
-} from "@/store/AdminStore/type/allModule";
-import { ContentItem } from "@/store/AdminStore/type/allContent";
+import { useLazyGetAllContentQuery } from "@/store/LMS/content/contentApi";
+import { AllModule, BasicContent } from "@/store/LMS/module/types/regularModule";
+import { CourseProgress } from "@/store/LMS/progressAndCertificate/types/progressType";
+import { useGetMyReviewQuery } from "@/store/LMS/review/reviewApi";
+import { MyReview } from "@/store/LMS/review/types/reviewsType";
 
 type ModuleInterfaceProps = {
   handleProgress: (courseId: string, singleContentId: string) => void;
   setSelectBasicContent: (data: BasicContent | null) => void;
+  allModule: AllModule | null;
+  courseProgress: CourseProgress;
 };
 
 const ModuleInterface: React.FC<ModuleInterfaceProps> = ({
   handleProgress,
   setSelectBasicContent,
+  allModule,
+  courseProgress,
 }) => {
   const [courseId, setCourseId] = useState("");
   const [selectedReview, setSelectedReview] = useState<ReviewSchema | null>(
-    null
+    null,
   );
   const [reviewId, setReviewId] = useState<string | null>(null);
 
   const [isAddReviewOpen, isSetAddReviewOpen] = useState(false);
-  const {
-    getAllContent,
-    allContent,
-    courseProgress,
-    getMyReview,
-    allModule,
-    myReview,
-  } = useAdminStore();
+
+  const { data: myReviewData } = useGetMyReviewQuery();
+  const [getAllContent, { data }] = useLazyGetAllContentQuery();
+
+  const allContent = data?.data;
+  const myReview = myReviewData?.data;
 
   const handleContent = async (moduleId: string) => {
     if (moduleId) {
       // call single module only standard or certified
       await getAllContent(moduleId);
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth",
+      });
     }
   };
 
   const basicContents = allModule?.basicContents;
   const modules = allModule?.modules;
-
-  useEffect(() => {
-    getMyReview();
-  }, []);
 
   const handleReview = (data: ReviewSchema, id: string) => {
     setSelectedReview(data);
@@ -63,7 +63,6 @@ const ModuleInterface: React.FC<ModuleInterfaceProps> = ({
     setReviewId(id);
   };
 
-  console.log("modules", modules);
   return (
     <div className="w-[30%] ">
       <div className="rounded-2xl shadow-[0_0_1px_2px_rgba(0.04)] bg-white w-full pb-6 ">
@@ -153,10 +152,13 @@ const ModuleInterface: React.FC<ModuleInterfaceProps> = ({
           </Accordion>
         )}
       </div>
-
       {courseId &&
-        (myReview?.length > 0 && !isAddReviewOpen ? (
-          <ReviewCard review={myReview} handleReview={handleReview} />
+        courseProgress?.percentage === 100 &&
+        (myReview && myReview?.length > 0 && !isAddReviewOpen ? (
+          <ReviewCard
+            review={myReview as MyReview[]}
+            handleReview={handleReview}
+          />
         ) : (
           <AddComment
             courseId={courseId}

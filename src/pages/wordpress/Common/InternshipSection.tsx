@@ -1,3 +1,4 @@
+import CommonButton from "@/common/button/CommonButton";
 import WordPressWrapper from "./WordPressWrapper";
 
 const InternshipSection = () => {
@@ -15,12 +16,8 @@ const InternshipSection = () => {
             solutions, ENERGHX™ is offering internship opportunities to
             prospective energy ambassadors.
           </p>
-          <a
-            href="#hero"
-            className="inline-block  bg-primary hover:bg-green-600 text-black  rounded-md px-6 sm:px-20 py-3 transition-colors"
-          >
-            Enrol now
-          </a>
+
+          <CommonButton to="/"> Enrol now</CommonButton>
         </div>
       </section>
     </WordPressWrapper>

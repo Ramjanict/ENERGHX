@@ -1,7 +1,8 @@
-import React, { useState } from "react";
-import { useAdminStore } from "@/store/AdminStore/AdminStore";
-import EditButton from "./EditButton";
+import CommonBorderWrapper from "@/common/button/CommonBorderWrapper";
+import { useDeleteCourseMutation } from "@/store/LMS/course/courseApi";
+import React from "react";
 import DeleteButton from "./DeleteButton";
+import EditButton from "./EditButton";
 
 type course = {
   id: string;
@@ -20,25 +21,22 @@ type courseCardProps = {
 };
 
 const CourseCard: React.FC<courseCardProps> = ({ course, onEdit }) => {
-  const { deleteCourse, getAllCourse } = useAdminStore();
-  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteCourse, { isLoading: isCourseDelete, originalArgs }] =
+    useDeleteCourseMutation();
 
   const handleDelete = async () => {
     if (!course?.id) return;
-    setIsDeleting(true); // if you add local state
-
     try {
-      await deleteCourse(course.id);
-      await getAllCourse();
+      await deleteCourse(course.id).unwrap();
     } catch (error) {
       console.error("Failed to delete course:", error);
-    } finally {
-      setIsDeleting(false);
     }
   };
 
+  const isDeleting = isCourseDelete && originalArgs === course.id;
+
   return (
-    <div className="relative max-w-sm rounded-2xl overflow-hidden shadow-lg bg-white hover:shadow-xl transition-shadow duration-300 border">
+    <CommonBorderWrapper>
       {course.thumbnail ? (
         <img
           className="w-full h-48 object-cover"
@@ -69,12 +67,12 @@ const CourseCard: React.FC<courseCardProps> = ({ course, onEdit }) => {
 
         <div className="flex justify-end items-center gap-2 pt-4">
           <EditButton onClick={onEdit}>Edit</EditButton>
-          <DeleteButton onClick={handleDelete}>
-            {isDeleting ? "Deleting..." : "Delete"}
+          <DeleteButton disabled={isDeleting} onClick={handleDelete}>
+            Delete
           </DeleteButton>
         </div>
       </div>
-    </div>
+    </CommonBorderWrapper>
   );
 };
 

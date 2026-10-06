@@ -1,58 +1,95 @@
-import { useEffect, useState } from "react";
-import CommonHeader from "@/common/CommonHeader";
+import CommonHeader from "@/common/header/CommonHeader";
 import CourseCard from "@/common/LMS/CourseCard";
-import { useAdminStore } from "@/store/AdminStore/AdminStore";
+import { useState } from "react";
 import ModuleInterface from "./ModuleInterface";
-import { Link } from "react-router-dom";
+
+import { useGetAllModuleRegularQuery } from "@/store/LMS/module/moduleApi";
+import { BasicContent } from "@/store/LMS/module/types/regularModule";
+import {
+  useGetMyProgramQuery,
+  useGetSingleProgramQuery,
+} from "@/store/LMS/program/programApi";
+import {
+  useLazyGetProgressQuery,
+  useSetProgressMutation,
+} from "@/store/LMS/progressAndCertificate/progressAndCertificateApi";
+import { Controller, useForm } from "react-hook-form";
+import CommonSelect from "../button/CommonSelect";
+import MiniSpinner from "../loading/MiniSpinner";
 import ModuleDisplay from "./ModuleDisplay";
-import { BasicContent } from "@/store/AdminStore/type/allModule";
 const AllCourses = () => {
   const [selectBasicContent, setSelectBasicContent] =
     useState<BasicContent | null>(null);
+
   const [selectModulesId, setSelectModulesId] = useState<string | null>(null);
+  const [selectCourseId, setSelectCourseId] = useState("");
+  const { data } = useGetMyProgramQuery();
+
+  const myProgram = data?.data ?? [];
+  const programOptions = myProgram.map((item) => ({
+    label: item.program.id,
+    value: item.program.title,
+  }));
+
+  const { data: moduleData } = useGetAllModuleRegularQuery(selectCourseId, {
+    skip: !selectCourseId,
+    refetchOnMountOrArgChange: true,
+  });
+
+  const allModule = moduleData?.data;
 
   const {
-    singleProgram,
-    getSingleProgram,
-    setProgress,
-    getProgress,
-    courseProgress,
-    allModule,
-  } = useAdminStore();
+    control,
+    watch,
+    formState: { errors },
+  } = useForm({
+    defaultValues: {
+      programId: "",
+    },
+  });
 
-  useEffect(() => {
-    const programId = localStorage.getItem("selectedProgram");
-    if (programId) {
-      getSingleProgram(programId);
-    }
-  }, []);
+  const programId = watch("programId");
+  const { data: singleProgram, isLoading } = useGetSingleProgramQuery(
+    programId,
+    {
+      skip: !programId,
+      refetchOnMountOrArgChange: true,
+    },
+  );
+  const courses = singleProgram?.data?.courses ?? [];
 
-  const [isHandleProgress, setIsHandleProgress] = useState(false);
+  const [setProgress, { isLoading: isHandleProgress }] =
+    useSetProgressMutation();
+  const [getProgress, { data: progress }] = useLazyGetProgressQuery();
 
+  const courseProgress = progress?.data;
   const handleProgress = async (courseId: string, singleContentId: string) => {
     try {
-      setIsHandleProgress(true);
       setSelectModulesId(singleContentId);
-      await setProgress(courseId, singleContentId);
+      await setProgress({ courseId, singleContentId });
       await getProgress(courseId);
     } catch (error) {
       console.error("Error handling progress:", error);
-      // Optional: show toast or UI feedback here
     } finally {
-      setIsHandleProgress(false);
     }
   };
 
   return (
     <div className="w-full">
       <div className="flex items-center gap-6 pb-6">
-        <CommonHeader className="!pb-0">All Courses</CommonHeader>
-        <Link
-          to="/choose-program"
-          className="cursor-pointer px-4 py-1 rounded-lg bg-primary text-white transition hover:bg-green-500"
-        >
-          Choose program
-        </Link>
+        <CommonHeader className="!pb-0">Choose program</CommonHeader>
+        <Controller
+          control={control}
+          name="programId"
+          render={({ field }) => (
+            <CommonSelect
+              value={field.value}
+              onValueChange={field.onChange}
+              item={programOptions}
+              placeholder="Select Program"
+            />
+          )}
+        />
       </div>
 
       {(!!allModule?.basicContents?.length || !!allModule?.modules?.length) && (
@@ -61,32 +98,42 @@ const AllCourses = () => {
             selectBasicContent={selectBasicContent}
             selectModulesId={selectModulesId}
             isHandleProgress={isHandleProgress}
+            allModule={allModule}
+            courseProgress={courseProgress!!}
           />
           <ModuleInterface
             handleProgress={handleProgress}
             setSelectBasicContent={setSelectBasicContent}
+            allModule={allModule}
+            courseProgress={courseProgress!!}
           />
         </div>
       )}
 
-      <div>
-        {singleProgram?.courses?.length > 0 ? (
-          <div className=" flex flex-col gap-6">
-            {singleProgram.courses.map((course) => (
-              <CourseCard
-                key={course.id}
-                course={course}
-                courseProgress={courseProgress}
-              />
-            ))}
-          </div>
-        ) : (
-          <p className=" text-gray-500">
-            No courses are currently available for this program. Please check
-            back later or select a different program.
-          </p>
-        )}
-      </div>
+      {!programId ? (
+        <p className="text-gray-500">
+          Please select a program to view courses.
+        </p>
+      ) : isLoading ? (
+        <MiniSpinner />
+      ) : myProgram?.length === 0 ? (
+        <p>No programs available.</p>
+      ) : courses?.length > 0 ? (
+        <div className="flex flex-col gap-6">
+          {courses.map((course) => (
+            <CourseCard
+              key={course.id}
+              course={course}
+              courseProgress={courseProgress!!}
+              onWatch={() => {
+                setSelectCourseId(course.id);
+              }}
+            />
+          ))}
+        </div>
+      ) : (
+        <p className="text-gray-500">No courses found for this program.</p>
+      )}
     </div>
   );
 };

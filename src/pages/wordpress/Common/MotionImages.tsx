@@ -1,6 +1,12 @@
 import { useEffect, useState } from "react";
 
+import CommonButton from "@/common/button/CommonButton";
+import { useLocation } from "react-router-dom";
 import image1 from "../../../assets/wordpress/C1.jpg";
+import image10 from "../../../assets/wordpress/C10.jpg";
+import image11 from "../../../assets/wordpress/C11.jpg";
+import image12 from "../../../assets/wordpress/C12.jpg";
+import image14 from "../../../assets/wordpress/C13.jpg";
 import image2 from "../../../assets/wordpress/C2.jpg";
 import image3 from "../../../assets/wordpress/C3.jpg";
 import image4 from "../../../assets/wordpress/C4.jpg";
@@ -9,12 +15,7 @@ import image6 from "../../../assets/wordpress/C6.jpg";
 import image7 from "../../../assets/wordpress/C7.jpg";
 import image8 from "../../../assets/wordpress/C8.jpg";
 import image9 from "../../../assets/wordpress/C9.jpg";
-import image10 from "../../../assets/wordpress/C10.jpg";
-import image11 from "../../../assets/wordpress/C11.jpg";
-import image12 from "../../../assets/wordpress/C12.jpg";
 import image13 from "../../../assets/wordpress/consulting-energy.jpg";
-import image14 from "../../../assets/wordpress/C13.jpg";
-import { useLocation } from "react-router-dom";
 const images = [
   image1,
   image2,
@@ -65,12 +66,12 @@ const MotionImages: React.FC<MotionImages> = ({ title }) => {
           </h1>
           {hideUI && (
             <div className="flex   gap-4">
-              <button className="px-6 sm:px-12 py-3 bg-primary rounded-sm  cursor-pointer">
+              <CommonButton variant="outline" to="/">
                 Sign up
-              </button>
-              <button className="px-6 sm:px-12  py-3 bg-white text-primary rounded-sm  cursor-pointer">
+              </CommonButton>
+              <CommonButton variant="outline" to="/login">
                 Sign in
-              </button>
+              </CommonButton>
             </div>
           )}
         </div>

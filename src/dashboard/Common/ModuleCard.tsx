@@ -1,7 +1,8 @@
-import React, { useState } from "react";
-import { useAdminStore } from "@/store/AdminStore/AdminStore";
-import EditButton from "./EditButton";
+import CommonBorderWrapper from "@/common/button/CommonBorderWrapper";
+import { useDeleteModuleMutation } from "@/store/LMS/module/moduleApi";
+import React from "react";
 import DeleteButton from "./DeleteButton";
+import EditButton from "./EditButton";
 
 type Module = {
   id: string;
@@ -15,32 +16,25 @@ type Module = {
 type ModuleCardProps = {
   module: Module;
   onEdit?: () => void;
-  selectedCourseId: string;
 };
 
-const ModuleCard: React.FC<ModuleCardProps> = ({
-  module,
-  onEdit,
-  selectedCourseId,
-}) => {
-  const { getAllModule, deleteModule } = useAdminStore();
-  const [isDeleting, setIsDeleting] = useState(false);
+const ModuleCard: React.FC<ModuleCardProps> = ({ module, onEdit }) => {
+  const [deleteModule, { isLoading: isModuleDeleting, originalArgs }] =
+    useDeleteModuleMutation();
 
   const handleDelete = async () => {
     if (!module?.id) return;
     try {
-      setIsDeleting(true);
-      await deleteModule(module.id);
-      await getAllModule(selectedCourseId);
+      await deleteModule(module.id).unwrap();
     } catch (error) {
       console.error("Failed to delete module:", error);
-    } finally {
-      setIsDeleting(false);
     }
   };
 
+  const isDeleting = isModuleDeleting && originalArgs === module.id;
+
   return (
-    <div className="relative max-w-sm rounded-2xl overflow-hidden shadow-lg bg-white hover:shadow-xl transition-shadow duration-300 border">
+    <CommonBorderWrapper>
       <img
         className="w-full h-48 object-cover"
         src={module.thumbnail}
@@ -53,12 +47,12 @@ const ModuleCard: React.FC<ModuleCardProps> = ({
 
         <div className="flex justify-end items-center gap-2 pt-4">
           <EditButton onClick={onEdit}>Edit</EditButton>
-          <DeleteButton onClick={handleDelete}>
+          <DeleteButton disabled={isDeleting} onClick={handleDelete}>
             {isDeleting ? "Deleting..." : "Delete"}
           </DeleteButton>
         </div>
       </div>
-    </div>
+    </CommonBorderWrapper>
   );
 };
 

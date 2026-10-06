@@ -1,3 +1,4 @@
+import CommonButton from "@/common/button/CommonButton";
 import CommonWordPressHeader from "../Common/CommonWordPressHeader";
 
 const Internship = () => {
@@ -16,12 +17,10 @@ const Internship = () => {
           as servers and developers.
         </p>
         <div className="w-full  flex flex-col sm:flex-row justify-center gap-4">
-          <button className="bg-primary hover:bg-green-600 text-white px-6 py-3 rounded-md text-sm  cursor-pointer">
-            Enroll as SERVER
-          </button>
-          <button className="bg-primary hover:bg-green-600 text-white px-6 py-2 rounded-md text-sm  cursor-pointer">
+          <CommonButton to="/server-developer">Enroll as SERVER</CommonButton>
+          <CommonButton to="/server-developer">
             Enroll as DEVELOPER
-          </button>
+          </CommonButton>
         </div>
       </div>
     </section>

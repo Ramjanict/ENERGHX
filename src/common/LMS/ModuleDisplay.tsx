@@ -1,45 +1,41 @@
-import { useAdminStore } from "@/store/AdminStore/AdminStore";
+import QuizAssessmentCard from "@/dashboard/components/QuizAssessmentCard";
+import SubmitQuiz from "@/dashboard/components/SubmitQuiz";
+import { useGetSingleContentQuery } from "@/store/LMS/content/contentApi";
 import {
   AllModule,
   BasicContent,
-  Module,
-} from "@/store/AdminStore/type/allModule";
-import { useEffect, useState } from "react";
-import CommonHeader from "../CommonHeader";
-import SubmitQuiz from "@/dashboard/components/SubmitQuiz";
-import QuizAssessmentCard from "@/dashboard/components/QuizAssessmentCard";
-import { ContentItem } from "@/store/AdminStore/type/allContent";
+} from "@/store/LMS/module/types/regularModule";
+import { CourseProgress } from "@/store/LMS/progressAndCertificate/types/progressType";
+import { useGetQuizResultQuery } from "@/store/LMS/quiz/quizApi";
+import CommonHeader from "../header/CommonHeader";
+import VideoSkeleton from "../loading/VideoSkeleton";
 
 interface ModuleDisplayProps {
   selectBasicContent: BasicContent | null;
+  allModule: AllModule | null;
   selectModulesId: string | null;
   isHandleProgress: boolean;
+  courseProgress: CourseProgress;
 }
-
-const VideoSkeleton = () => {
-  return (
-    <div className="aspect-video w-full overflow-hidden mb-4 animate-pulse bg-gray-200 relative p-6 rounded-2xl shadow-md border border-gray-200">
-      <div className="absolute inset-0 flex items-center justify-center">
-        <div className="w-10 h-10 border-4 border-t-transparent border-primary rounded-full animate-spin"></div>
-      </div>
-    </div>
-  );
-};
 
 const ModuleDisplay: React.FC<ModuleDisplayProps> = ({
   selectBasicContent,
   selectModulesId,
   isHandleProgress,
+  allModule,
+  courseProgress,
 }) => {
-  const { singleContent, getSingleContent, courseProgress, mark, allModule } =
-    useAdminStore();
+  const { data: singleContentData } = useGetSingleContentQuery(
+    selectModulesId as string,
+    {
+      skip: !selectModulesId,
+      refetchOnMountOrArgChange: true,
+    },
+  );
 
-  useEffect(() => {
-    if (selectModulesId) {
-      getSingleContent(selectModulesId);
-    }
-  }, [selectModulesId]);
+  const singleContent = singleContentData?.data;
 
+  const { data: mark } = useGetQuizResultQuery();
   return (
     <div className="w-[70%] space-y-6">
       {isHandleProgress ? (
@@ -64,7 +60,7 @@ const ModuleDisplay: React.FC<ModuleDisplayProps> = ({
 
           {selectModulesId &&
             courseProgress?.watchedContents?.includes(
-              singleContent?.id ?? ""
+              singleContent?.id ?? "",
             ) &&
             singleContent?.contentType && (
               <div className="p-6 rounded-2xl shadow-md bg-white border border-gray-200">
@@ -96,24 +92,17 @@ const ModuleDisplay: React.FC<ModuleDisplayProps> = ({
                   )}
 
                 {/* QUIZ BLOCK */}
-                {singleContent.contentType === "QUIZ" && singleContent.quiz && (
+                {singleContent.contentType === "QUIZ" &&
+                singleContent?.quiz?.quizzes?.length > 0 ? (
                   <div className="text-gray-700 text-base">
                     <div className="mb-4 flex justify-between items-center">
                       <h3 className="text-xl font-bold text-gray-900 mb-1">
                         Quiz Assessment
                       </h3>
-                      <p className="text-gray-700 text-base">
-                        <span className="font-medium">Total Marks:</span>{" "}
-                        {singleContent.quiz.totalMark}
-                      </p>
                     </div>
 
                     {mark ? (
-                      <QuizAssessmentCard
-                        submission={mark?.data?.quizSubmission}
-                        score={mark?.data?.score}
-                        total={mark?.data?.total}
-                      />
+                      <QuizAssessmentCard quizResult={mark} />
                     ) : (
                       <SubmitQuiz
                         quizzes={singleContent.quiz.quizzes}
@@ -121,6 +110,8 @@ const ModuleDisplay: React.FC<ModuleDisplayProps> = ({
                       />
                     )}
                   </div>
+                ) : (
+                  <p>No quizzes found.</p>
                 )}
               </div>
             )}

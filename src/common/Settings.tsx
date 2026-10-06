@@ -1,9 +1,9 @@
+import CommonHeader from "@/common/header/CommonHeader";
 import { useState } from "react";
 import { LuUserRound } from "react-icons/lu";
 import { SlLockOpen } from "react-icons/sl";
-import CommonHeader from "@/common/CommonHeader";
-import Profile from "@/components/standard-consumer/settings/Profile";
-import Password from "@/components/standard-consumer/settings/Password";
+import Password from "@/common/settings/Password";
+import Profile from "@/common/settings/Profile";
 
 const Settings = () => {
   const [activeTab, setActiveTab] = useState("profile");

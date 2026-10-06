@@ -1,6 +1,6 @@
-import { useAdminStore } from "@/store/AdminStore/AdminStore";
-import { MyReview } from "@/store/AdminStore/type/myReview";
-import { useState } from "react";
+import CommonBorderWrapper from "@/common/button/CommonBorderWrapper";
+import { useDeleteMyReviewMutation } from "@/store/LMS/review/reviewApi";
+import { MyReview } from "@/store/LMS/review/types/reviewsType";
 
 interface Comment {
   rating: number;
@@ -13,52 +13,54 @@ interface ReviewCardProps {
 }
 
 const ReviewCard: React.FC<ReviewCardProps> = ({ review, handleReview }) => {
-  const { deleteMyReview, getMyReview } = useAdminStore();
-  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteMyReview, { isLoading, originalArgs }] =
+    useDeleteMyReviewMutation();
 
   const handleDelete = async (reviewId: string) => {
     try {
-      setIsDeleting(true);
       await deleteMyReview(reviewId);
-      await getMyReview();
     } catch (error) {
       console.error("Failed to delete review:", error);
     } finally {
-      setIsDeleting(false);
     }
   };
 
   return (
     <div className="space-y-4">
-      {review.map((r) => (
-        <div
-          key={r.id}
-          className="p-4 rounded shadow bg- space-y-3 bg-gray-50 hover:bg-gray-100"
-        >
-          <h3 className="text-lg font-semibold">{r.course.title}</h3>
+      {review.map((r) => {
+        const isDeleting = isLoading && originalArgs === r.id;
 
-          <div className="text-yellow-500 text-xl">{"★".repeat(r.rating)}</div>
+        return (
+          <CommonBorderWrapper key={r.id} className="space-y-3">
+            <h3 className="text-lg font-semibold">{r.course.title}</h3>
 
-          <p className="text-gray-700">{r.comment}</p>
+            <div className="text-yellow-500 text-xl">
+              {"★".repeat(r.rating)}
+            </div>
 
-          <div className="flex gap-3 mt-2">
-            <button
-              onClick={() => {
-                handleReview({ rating: r.rating, comment: r.comment }, r.id);
-              }}
-              className="text-sm px-3 py-1 bg-blue-500 text-white rounded cursor-pointer"
-            >
-              Edit
-            </button>
-            <button
-              onClick={() => handleDelete(r.id)}
-              className="text-sm px-3 py-1 bg-red-500 text-white rounded cursor-pointer"
-            >
-              {isDeleting ? "Deleting..." : "Delete"}
-            </button>
-          </div>
-        </div>
-      ))}
+            <p className="text-gray-700">{r.comment}</p>
+
+            <div className="flex gap-3 mt-2">
+              <button
+                onClick={() =>
+                  handleReview({ rating: r.rating, comment: r.comment }, r.id)
+                }
+                className="text-sm px-3 py-1 bg-blue-500 text-white rounded cursor-pointer"
+              >
+                Edit
+              </button>
+
+              <button
+                onClick={() => handleDelete(r.id)}
+                disabled={isDeleting}
+                className="text-sm px-3 py-1 bg-red-500 text-white rounded cursor-pointer disabled:opacity-50"
+              >
+                {isDeleting ? "Deleting..." : "Delete"}
+              </button>
+            </div>
+          </CommonBorderWrapper>
+        );
+      })}
     </div>
   );
 };

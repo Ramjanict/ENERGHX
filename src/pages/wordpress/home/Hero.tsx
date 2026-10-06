@@ -1,5 +1,5 @@
+import CommonButton from "@/common/button/CommonButton";
 import img from "../../../assets/wordpress/hero-banner.png";
-import Header from "../Common/Header";
 import WordPressWrapper from "../Common/WordPressWrapper";
 
 const Hero = () => {
@@ -10,7 +10,7 @@ const Hero = () => {
       style={{ backgroundImage: `url(${img})` }}
     >
       <WordPressWrapper>
-        <Header />
+        {/* <Header /> */}
         <div className="flex flex-col justify-end h-[calc(100vh-100px)] py-12">
           <h1 className="text-3xl md:text-5xl lg:text-7xl font-bold leading-tight font-secondary">
             MONITOR
@@ -21,12 +21,12 @@ const Hero = () => {
           </h1>
           <p className="text-xl mt-4">Your energy consumption</p>
           <div className="flex space-x-4 mt-8">
-            <button className="border border-primary hover:bg-primary text-primary hover:text-black px-10 py-3 rounded-md transition-colors cursor-pointer">
+            <CommonButton to="/" variant="outline">
               Sign up
-            </button>
-            <button className="border border-primary hover:bg-primary text-primary hover:text-black px-10 py-3 rounded-md transition-colors cursor-pointer">
+            </CommonButton>
+            <CommonButton to="/login" variant="outline">
               Sign in
-            </button>
+            </CommonButton>
           </div>
         </div>
       </WordPressWrapper>

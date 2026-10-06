@@ -1,14 +1,16 @@
 // components/ReviewForm.tsx
-import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Controller, useForm } from "react-hook-form";
 
-import { IoIosStar, IoIosStarHalf, IoIosStarOutline } from "react-icons/io";
 import { useEffect, useState } from "react";
+import { IoIosStar, IoIosStarHalf, IoIosStarOutline } from "react-icons/io";
 
+import {
+  useAddReviewMutation,
+  useUpdateMyReviewMutation,
+} from "@/store/LMS/review/reviewApi";
 import { z } from "zod";
 import AdminCommonButton from "../Common/AdminCommonButton";
-import { useAdminStore } from "@/store/AdminStore/AdminStore";
-import { MyReview } from "@/store/AdminStore/type/myReview";
 
 export const reviewSchema = z.object({
   rating: z.number().min(1, "Please give a rating"),
@@ -74,13 +76,6 @@ const AddComment: React.FC<AddCommentProps> = ({
   isSetAddReviewOpen,
 }) => {
   const {
-    AddReview,
-    isReviewSubmitting,
-    updateMyReview,
-    isMyReviewUpdate,
-    getMyReview,
-  } = useAdminStore();
-  const {
     control,
     register,
     reset,
@@ -94,21 +89,24 @@ const AddComment: React.FC<AddCommentProps> = ({
     },
   });
 
+  const [AddReview, { isLoading: isReviewSubmitting }] = useAddReviewMutation();
+  const [updateMyReview, { isLoading: isMyReviewUpdate }] =
+    useUpdateMyReviewMutation();
   const onSubmit = async (data: ReviewSchema) => {
     const addComment = { ...data, courseId };
 
     try {
       if (reviewId && selectedReview) {
-        await updateMyReview(reviewId, addComment);
+        await updateMyReview({ reviewId, review: addComment });
       } else if (courseId) {
         await AddReview(addComment);
       }
 
-      await getMyReview();
       reset();
       isSetAddReviewOpen(false);
     } catch (error) {
       console.error("Failed to submit review:", error);
+    } finally {
     }
   };
 
@@ -147,12 +145,16 @@ const AddComment: React.FC<AddCommentProps> = ({
         )}
       </div>
 
-      <AdminCommonButton className="!w-fit" type="submit">
+      <AdminCommonButton
+        disabled={isReviewSubmitting || isMyReviewUpdate}
+        className="!w-fit"
+        type="submit"
+      >
         {isReviewSubmitting || isMyReviewUpdate
           ? "Processing..."
           : selectedReview
-          ? "Update Review"
-          : "Submit Review"}
+            ? "Update Review"
+            : "Submit Review"}
       </AdminCommonButton>
     </form>
   );

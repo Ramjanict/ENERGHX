@@ -1,20 +1,23 @@
-import { useForm, useFieldArray, Controller } from "react-hook-form";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Select,
-  SelectTrigger,
-  SelectValue,
   SelectContent,
   SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
-import { useAdminStore } from "@/store/AdminStore/AdminStore";
-import AllCourse from "../components/AllCourse";
-import AdminCommonHeader from "../Common/AdminCommonHeader";
+import { useGetAllContentQuery } from "@/store/LMS/content/contentApi";
+import { useGetAllModuleQuery } from "@/store/LMS/module/moduleApi";
+import { useGetAllQuizQuery } from "@/store/LMS/quiz/quizApi";
+import { SingleQuiz } from "@/store/LMS/quiz/types/quizTypes";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
-import { RiCloseLargeLine } from "react-icons/ri";
-import QuizCard, { SingleQuiz } from "../Common/QuizCard";
+import { Controller, useForm } from "react-hook-form";
+import { z } from "zod";
 import AdminCommonButton from "../Common/AdminCommonButton";
+import AdminCommonHeader from "../Common/AdminCommonHeader";
+import QuizCard from "../Common/QuizCard";
+import AllCourse from "../components/AllCourse";
+import QuizCreationModal from "../components/creationModal/CreateQuizCreationModal";
 
 const quizSchema = z.object({
   contentId: z.string().uuid({ message: "Please select a content ID" }),
@@ -27,19 +30,19 @@ const quizSchema = z.object({
           .length(4, "Exactly 4 options required"),
         correctAnswer: z
           .number()
-          .min(0, "Select the correct answer") // Changed to 0-based
-          .max(3, "Answer must be between 1 and 4"), // Changed max to 3
-      })
+          .min(0, "Select the correct answer")
+          .max(3, "Answer must be between 1 and 4"),
+      }),
     )
     .min(1, "At least one question is required"),
 });
 
-type QuizSchemaType = z.infer<typeof quizSchema>;
+export type QuizSchemaType = z.infer<typeof quizSchema>;
 
-const defaultQuestion: QuizSchemaType["quizzesData"][0] = {
+export const defaultQuestion: QuizSchemaType["quizzesData"][0] = {
   question: "",
   options: ["", "", "", ""],
-  correctAnswer: 0, // Changed to 0-based
+  correctAnswer: 0,
 };
 
 const Quiz = () => {
@@ -49,18 +52,17 @@ const Quiz = () => {
   const [quizId, setQuizId] = useState("");
   const [isQuizOpen, setIsQuizOpen] = useState(false);
 
-  const {
-    isQuizCreating,
-    isQuizUpdating,
-    allModule,
-    getAllModule,
-    allContent,
-    getAllContent,
-    createQuiz,
-    getAllQuiz,
-    UpdateQuiz,
-    allQuiz,
-  } = useAdminStore();
+  const { data: moduleData } = useGetAllModuleQuery(selectedCourseId, {
+    skip: !selectedCourseId,
+    refetchOnMountOrArgChange: true,
+  });
+  const allModule = moduleData?.data;
+
+  const { data: contentData } = useGetAllContentQuery(selectedModuleId, {
+    skip: !selectedModuleId,
+    refetchOnMountOrArgChange: true,
+  });
+  const allContent = contentData?.data;
 
   const form = useForm<QuizSchemaType>({
     resolver: zodResolver(quizSchema),
@@ -70,18 +72,20 @@ const Quiz = () => {
     },
   });
 
-  const { control, register, handleSubmit, formState, reset, watch, setValue } =
-    form;
-  const { fields, append, remove } = useFieldArray({
+  const {
     control,
-    name: "quizzesData",
-  });
-  const { errors } = formState;
+    reset,
+    watch,
+    setValue,
+    formState: { errors },
+  } = form;
   const watchedContentId = watch("contentId");
 
-  useEffect(() => {
-    if (watchedContentId) getAllQuiz(watchedContentId);
-  }, [watchedContentId, getAllQuiz]);
+  const { data: quizData } = useGetAllQuizQuery(watchedContentId, {
+    skip: !watchedContentId,
+    refetchOnMountOrArgChange: true,
+  });
+  const allQuiz = quizData?.data;
 
   useEffect(() => {
     if (selectedQuiz) {
@@ -99,53 +103,17 @@ const Quiz = () => {
   const handleCourseChange = (courseId: string) => {
     setSelectedCourseId(courseId);
     setSelectedModuleId("");
-    getAllModule(courseId);
     setValue("contentId", "");
   };
 
   const handleModuleChange = (moduleId: string) => {
     setSelectedModuleId(moduleId);
-    getAllContent(moduleId);
     setValue("contentId", "");
   };
 
-  const onSubmit = async (data: QuizSchemaType) => {
-    try {
-      if (quizId) {
-        // Convert back to 1-based for API
-        const quizToUpdate = {
-          question: data.quizzesData[0].question,
-          options: data.quizzesData[0].options,
-          correctAnswer: data.quizzesData[0].correctAnswer + 1,
-        };
-        await UpdateQuiz(quizId, quizToUpdate);
-      } else {
-        // For creation, convert to 1-based
-        const quizToCreate = {
-          ...data,
-          quizzesData: data.quizzesData.map((quiz) => ({
-            ...quiz,
-            correctAnswer: quiz.correctAnswer + 1,
-          })),
-        };
-        await createQuiz(quizToCreate);
-      }
-
-      if (data.contentId) {
-        await getAllQuiz(data.contentId);
-      }
-      setIsQuizOpen(false);
-      setSelectedQuiz(null);
-      setQuizId("");
-      reset({ contentId: "", quizzesData: [defaultQuestion] });
-    } catch (error) {
-      console.error("Failed to submit quiz:", error);
-    }
-  };
-
-  const handleQuiz = (quizId: string, quiz: SingleQuiz) => {
+  const handleQuiz = (qId: string, quiz: SingleQuiz) => {
     setSelectedQuiz({
-      contentId: allQuiz.contentId,
+      contentId: allQuiz?.contentId ?? "",
       quizzesData: [
         {
           question: quiz.question,
@@ -154,12 +122,19 @@ const Quiz = () => {
         },
       ],
     });
-    setQuizId(quizId);
+    setQuizId(qId);
     setIsQuizOpen(true);
   };
 
+  const handleClose = () => {
+    setIsQuizOpen(false);
+    setSelectedQuiz(null);
+    setQuizId("");
+    reset({ contentId: "", quizzesData: [defaultQuestion] });
+  };
+
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className=" flex flex-col gap-6">
+    <div className="flex flex-col gap-6">
       <AdminCommonHeader className="!pb-0">Create Quiz</AdminCommonHeader>
       <div className="flex gap-4 items-center">
         <AllCourse
@@ -185,15 +160,12 @@ const Quiz = () => {
             control={control}
             name="contentId"
             render={({ field }) => (
-              <Select
-                onValueChange={(value) => field.onChange(value)}
-                value={field.value}
-              >
+              <Select onValueChange={field.onChange} value={field.value}>
                 <SelectTrigger className="w-[180px]">
                   <SelectValue placeholder="Select content..." />
                 </SelectTrigger>
-                <SelectContent className=" bg-white">
-                  {allContent.contents
+                <SelectContent className="bg-white">
+                  {allContent?.contents
                     ?.filter((c) => c.contentType === "QUIZ")
                     .map((content) => (
                       <SelectItem key={content.id} value={content.id}>
@@ -211,133 +183,31 @@ const Quiz = () => {
           )}
         </div>
       </div>
-      {allQuiz?.quizzes?.length > 0 && (
-        <QuizCard allQuiz={allQuiz} handleQuiz={handleQuiz} />
-      )}
+
       {!isQuizOpen && (
         <AdminCommonButton
           type="button"
           onClick={() => setIsQuizOpen(true)}
-          className=" !w-fit"
+          className="!w-fit"
         >
           Create Quiz
         </AdminCommonButton>
       )}
 
-      {isQuizOpen && (
-        <div className="fixed inset-0 bg-opacity-50 backdrop-blur-sm transition-opacity min-h-screen flex items-center justify-center">
-          <div className="w-full  flex flex-col justify-center items-center gap-10 h-full overflow-hidden">
-            <div className="flex flex-col gap-6 bg-white w-[90%] md:w-[60%] lg:w-[50%] xl:w-[40%] shadow-[0px_0px_1px_2px_rgba(0,0,0,.04)] rounded-xl p-8  overflow-y-scroll">
-              <div className="w-full flex justify-between items-center ">
-                <AdminCommonHeader className="!pb-0">
-                  {selectedQuiz ? "Update Quiz" : "Create Quiz"}
-                </AdminCommonHeader>
-                <div
-                  onClick={() => {
-                    setIsQuizOpen(false);
-                    setSelectedQuiz(null);
-                    setQuizId("");
-                    reset({ contentId: "", quizzesData: [defaultQuestion] });
-                  }}
-                  className="text-xl cursor-pointer hover:text-red-500"
-                >
-                  <RiCloseLargeLine />
-                </div>
-              </div>
-
-              {fields.map((field, index) => (
-                <div key={field.id} className=" pt-6">
-                  <label className="font-semibold">Question {index + 1}</label>
-                  <input
-                    type="text"
-                    {...register(`quizzesData.${index}.question`)}
-                    placeholder="Enter the question"
-                    className="w-full border p-2 rounded"
-                  />
-                  {errors.quizzesData?.[index]?.question && (
-                    <p className="text-red-600 text-sm">
-                      {errors.quizzesData[index].question.message}
-                    </p>
-                  )}
-                  <div className="grid grid-cols-2 gap-4">
-                    {["A", "B", "C", "D"].map((label, i) => (
-                      <div key={i}>
-                        <label>Option {label}</label>
-                        <input
-                          type="text"
-                          {...register(`quizzesData.${index}.options.${i}`)}
-                          placeholder={`Option ${label}`}
-                          className="w-full border p-2 rounded"
-                        />
-                        {errors.quizzesData?.[index]?.options?.[i] && (
-                          <p className="text-red-600 text-xs">
-                            {errors.quizzesData[index].options[i].message}
-                          </p>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                  <label>Correct Answer</label>
-                  <Controller
-                    control={control}
-                    name={`quizzesData.${index}.correctAnswer`}
-                    render={({ field }) => (
-                      <Select
-                        onValueChange={(val) => field.onChange(Number(val))}
-                        value={String(field.value)}
-                      >
-                        <SelectTrigger className="w-full border p-2 rounded bg-white outline-none">
-                          <SelectValue placeholder="Select correct option" />
-                        </SelectTrigger>
-                        <SelectContent className="bg-white">
-                          <SelectItem value="0">Option A</SelectItem>
-                          <SelectItem value="1">Option B</SelectItem>
-                          <SelectItem value="2">Option C</SelectItem>
-                          <SelectItem value="3">Option D</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    )}
-                  />
-                  {errors.quizzesData?.[index]?.correctAnswer && (
-                    <p className="text-red-600 text-sm">
-                      {errors.quizzesData[index].correctAnswer.message}
-                    </p>
-                  )}
-                </div>
-              ))}
-              <div className="flex gap-4 pt-6">
-                <button
-                  type="button"
-                  onClick={() => append(defaultQuestion)}
-                  className="bg-blue-600 text-white px-4 py-2 rounded cursor-pointer"
-                >
-                  Add Question
-                </button>
-                <button
-                  type="button"
-                  onClick={() => fields.length > 1 && remove(fields.length - 1)}
-                  className="bg-red-600 text-white px-4 py-2 rounded disabled:opacity-50 cursor-pointer"
-                  disabled={fields.length === 1}
-                >
-                  Remove Question
-                </button>
-                <button
-                  type="submit"
-                  disabled={isQuizCreating || isQuizUpdating}
-                  className="bg-green-600 text-white px-6 py-2 rounded cursor-pointer"
-                >
-                  {isQuizCreating || isQuizUpdating
-                    ? "Processing..."
-                    : selectedQuiz
-                    ? "Update Quiz"
-                    : "Create Quiz"}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
+      {(allQuiz?.quizzes?.length ?? 0) > 0 && (
+        <QuizCard allQuiz={allQuiz} handleQuiz={handleQuiz} />
       )}
-    </form>
+
+      {isQuizOpen && (
+        <QuizCreationModal
+          form={form}
+          selectedQuiz={selectedQuiz}
+          quizId={quizId}
+          onClose={handleClose}
+          onSuccess={handleClose}
+        />
+      )}
+    </div>
   );
 };
 

@@ -1,50 +1,35 @@
-import React, { useState } from "react";
-import { useAdminStore } from "@/store/AdminStore/AdminStore";
-import EditButton from "./EditButton";
+import CommonBorderWrapper from "@/common/button/CommonBorderWrapper";
+import { useDeleteBasicContentMutation } from "@/store/LMS/content/contentApi";
+import { BasicContent } from "@/store/LMS/module/types/regularModule";
+import React from "react";
 import DeleteButton from "./DeleteButton";
-
-export type BasicContent = {
-  id: string;
-  title: string;
-  video: File;
-  createdAt: string;
-  updatedAt: string;
-  courseId: string;
-};
+import EditButton from "./EditButton";
 
 type BasicContentProps = {
   basicContent?: BasicContent; // Make it optional
   onEdit?: () => void;
-  selectedCourseId: string;
 };
 
 const BasicContentCard: React.FC<BasicContentProps> = ({
   basicContent,
   onEdit,
-  selectedCourseId,
 }) => {
-  const { getAllModule, deleteBasicContent } = useAdminStore();
-  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteBasicContent, { isLoading, originalArgs }] =
+    useDeleteBasicContentMutation();
 
-  // If no data, don't render anything
   if (!basicContent) return null;
 
   const handleDelete = async () => {
-    if (!basicContent?.id) return;
-
     try {
-      setIsDeleting(true);
-      await deleteBasicContent(basicContent.id);
-      await getAllModule(selectedCourseId);
+      await deleteBasicContent(basicContent.id).unwrap();
     } catch (error) {
       console.error("Failed to delete basic content:", error);
-    } finally {
-      setIsDeleting(false);
     }
   };
 
+  const isDeleting = isLoading && originalArgs === basicContent.id;
   return (
-    <div className="relative max-w-sm rounded-2xl overflow-hidden shadow-lg bg-white hover:shadow-xl transition-shadow duration-300 border">
+    <CommonBorderWrapper>
       {basicContent.video && (
         <video
           src={
@@ -63,12 +48,12 @@ const BasicContentCard: React.FC<BasicContentProps> = ({
 
         <div className="flex justify-end items-center gap-2 pt-4">
           <EditButton onClick={onEdit}>Edit</EditButton>
-          <DeleteButton onClick={handleDelete}>
-            {isDeleting ? "Deleting..." : "Delete"}
+          <DeleteButton disabled={isDeleting} onClick={handleDelete}>
+            Delete
           </DeleteButton>
         </div>
       </div>
-    </div>
+    </CommonBorderWrapper>
   );
 };
 

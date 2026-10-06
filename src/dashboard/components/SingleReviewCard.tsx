@@ -1,6 +1,7 @@
-import React from "react";
+import CommonBorderWrapper from "@/common/button/CommonBorderWrapper";
+import { SingleReview } from "@/store/LMS/review/types/reviewsType";
 import { Star } from "lucide-react";
-import { SingleReview } from "@/store/AdminStore/type/myReview";
+import React from "react";
 
 type ReviewCardProps = {
   singleReview: SingleReview[];
@@ -13,21 +14,18 @@ const SingleReviewCard: React.FC<ReviewCardProps> = ({ singleReview }) => {
         const { comment, rating, user } = review;
 
         return (
-          <div
-            key={review.id}
-            className="relative max-w-sm rounded-2xl overflow-hidden shadow-lg bg-white hover:shadow-xl transition-shadow duration-300 border"
-          >
+          <CommonBorderWrapper key={review.id}>
             {user?.profile_photo && (
               <img
                 src={user.profile_photo}
-                alt={`${user.firstName} ${user.lastName}`}
+                alt={`${user.firstname} ${user.firstname}`}
                 className="w-full h-48 object-cover"
               />
             )}
 
             <div className="p-4 space-y-2">
               <h2 className="text-xl font-semibold capitalize text-gray-800">
-                {user.firstName} {user.lastName}
+                {user.firstname} {user.lastname}
               </h2>
               <p className="text-sm text-gray-600">{user.email}</p>
 
@@ -47,10 +45,10 @@ const SingleReviewCard: React.FC<ReviewCardProps> = ({ singleReview }) => {
               </p>
 
               <div className="text-xs text-gray-500 pt-1">
-                Reviewed on {new Date(user.createdAt).toLocaleDateString()}
+                {/* Reviewed on {new Date(user.createdAt).toLocaleDateString()} */}
               </div>
             </div>
-          </div>
+          </CommonBorderWrapper>
         );
       })}
     </div>

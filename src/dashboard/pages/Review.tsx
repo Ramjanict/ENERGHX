@@ -1,36 +1,38 @@
-import { useAdminStore } from "@/store/AdminStore/AdminStore";
+import {
+  useGetAllReviewQuery,
+  useGetSingleReviewQuery,
+} from "@/store/LMS/review/reviewApi";
 import { useState } from "react";
-import AllReviewCard from "../components/AllReviewCard";
-import AllCourse from "../components/AllCourse";
-import SingleReviewCard from "../components/SingleReviewCard";
 import AdminCommonButton from "../Common/AdminCommonButton";
 import AdminCommonHeader from "../Common/AdminCommonHeader";
+import AllCourse from "../components/AllCourse";
+import AllReviewCard from "../components/AllReviewCard";
+import SingleReviewCard from "../components/SingleReviewCard";
 
 const Review = () => {
   const [selectedCourseId, setSelectedCourseId] = useState("");
   const [showAllReview, setShowAllReview] = useState(false);
 
-  const {
-    getAllReview,
-    allReview,
-    getSingleReview,
-    singleReview,
-    isSingleContentFetching,
-    isAllReviewFetching,
-  } = useAdminStore();
+  const { data: allReviewData, isFetching: isAllReviewFetching } =
+    useGetAllReviewQuery(undefined, {
+      skip: !showAllReview,
+    });
+  const allReview = allReviewData?.data ?? [];
+
+  const { data: singleReviewData } = useGetSingleReviewQuery(selectedCourseId, {
+    skip: !selectedCourseId,
+    refetchOnMountOrArgChange: true,
+  });
+  const singleReview = singleReviewData?.data ?? [];
 
   const handleCourseChange = (value: string) => {
     setSelectedCourseId(value);
-    setShowAllReview(false); // Hide all reviews when a course is selected
-    if (value) {
-      getSingleReview(value);
-    }
+    setShowAllReview(false);
   };
 
-  const handleClick = async () => {
-    setSelectedCourseId(""); // Deselect any course
-    setShowAllReview(true); // Show all reviews
-    await getAllReview();
+  const handleClick = () => {
+    setSelectedCourseId("");
+    setShowAllReview(true);
   };
 
   return (
@@ -49,7 +51,9 @@ const Review = () => {
 
       {selectedCourseId && !showAllReview ? (
         singleReview.length > 0 ? (
-          <SingleReviewCard singleReview={singleReview} />
+          <div className="py-6">
+            <SingleReviewCard singleReview={singleReview} />
+          </div>
         ) : (
           <AdminCommonHeader className="!text-sm pt-2">
             This course does not contain any review
@@ -58,9 +62,16 @@ const Review = () => {
       ) : null}
 
       {showAllReview && allReview.length > 0 && (
-        <AllReviewCard allReview={allReview} />
+        <div className="py-6">
+          <AllReviewCard allReview={allReview} />
+        </div>
       )}
-      <AdminCommonButton onClick={handleClick} className="!w-fit my-6">
+
+      <AdminCommonButton
+        disabled={isAllReviewFetching}
+        onClick={handleClick}
+        className="!w-fit my-6"
+      >
         {isAllReviewFetching ? "Processing..." : "Show all reviews"}
       </AdminCommonButton>
     </>

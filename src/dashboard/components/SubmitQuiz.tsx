@@ -1,18 +1,8 @@
-import { useAdminStore } from "@/store/AdminStore/AdminStore";
-import { AnswerSubmission } from "@/store/AdminStore/type/SubmitQuiz";
+import { QuizQuestion } from "@/store/LMS/content/types/singleContent";
+import { useSubmitQuizMutation } from "@/store/LMS/quiz/quizApi";
+import { AnswerSubmission } from "@/store/LMS/quiz/types/quizTypes";
 import React from "react";
-import { useForm, SubmitHandler } from "react-hook-form";
-import AdminCommonButton from "../Common/AdminCommonButton";
-
-export type QuizQuestion = {
-  id: string;
-  question: string;
-  options: string[];
-  correctAnswer: number;
-  createdAt: string;
-  updatedAt: string;
-  quizInstanceId: string;
-};
+import { SubmitHandler, useForm } from "react-hook-form";
 
 interface SubmitQuizProps {
   quizzes: QuizQuestion[];
@@ -20,11 +10,11 @@ interface SubmitQuizProps {
 }
 
 type QuizFormValues = {
-  [quizId: string]: string; // selected option index as string
+  [quizId: string]: string;
 };
 
 const SubmitQuiz: React.FC<SubmitQuizProps> = ({ quizzes, contentId }) => {
-  const { submitQuiz, isQuizSubmitting } = useAdminStore();
+  const [submitQuiz, { isLoading: isQuizSubmitting }] = useSubmitQuizMutation();
   const {
     register,
     handleSubmit,
@@ -43,45 +33,51 @@ const SubmitQuiz: React.FC<SubmitQuizProps> = ({ quizzes, contentId }) => {
     };
 
     try {
-      await submitQuiz(result); // Assuming this is an async function (like an API call)
-      console.log("Submitted successfully:", result);
+      await submitQuiz(result).unwrap();
     } catch (error) {
       console.error("Submission failed:", error);
+    } finally {
     }
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-      {quizzes.map((quiz) => (
-        <div key={quiz.id} className="p-4 border rounded-md">
-          <p className="font-semibold mb-2">{quiz.question}</p>
-          <div className="space-y-2">
-            {quiz.options.map((option, index) => (
-              <label key={index} className="flex items-center space-x-2">
-                <input
-                  type="radio"
-                  value={index}
-                  {...register(quiz.id, {
-                    required: "Please select an answer",
-                  })}
-                  className="accent-blue-500"
-                />
-                <span>{option}</span>
-              </label>
-            ))}
+    <div>
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        {quizzes.map((quiz) => (
+          <div key={quiz.id} className="p-4 border rounded-md">
+            <p className="font-semibold mb-2">{quiz.question}</p>
+            <div className="space-y-2">
+              {quiz.options.map((option, index) => (
+                <label key={index} className="flex items-center space-x-2">
+                  <input
+                    type="radio"
+                    value={index}
+                    {...register(quiz.id, {
+                      required: "Please select an answer",
+                    })}
+                    className="accent-blue-500"
+                  />
+                  <span>{option}</span>
+                </label>
+              ))}
+            </div>
+            {errors[quiz.id] && (
+              <p className="text-red-500 text-sm mt-1">
+                {errors[quiz.id]?.message as string}
+              </p>
+            )}
           </div>
-          {errors[quiz.id] && (
-            <p className="text-red-500 text-sm mt-1">
-              {errors[quiz.id]?.message as string}
-            </p>
-          )}
-        </div>
-      ))}
+        ))}
 
-      <AdminCommonButton type="submit">
-        {isQuizSubmitting ? "Processing..." : " Submit Quiz"}
-      </AdminCommonButton>
-    </form>
+        <button
+          disabled={isQuizSubmitting}
+          type="submit"
+          className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 cursor-pointer disabled:bg-blue-500 disabled:cursor-not-allowed"
+        >
+          {isQuizSubmitting ? "Processing..." : " Submit Quiz"}
+        </button>
+      </form>
+    </div>
   );
 };
 

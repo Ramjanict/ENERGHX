@@ -1,4 +1,4 @@
-import CommonHeader from "@/common/CommonHeader";
+import CommonHeader from "@/common/header/CommonHeader";
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 

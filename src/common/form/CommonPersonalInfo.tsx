@@ -1,38 +1,46 @@
 import {
-  Control,
-  Controller,
-  FieldErrors,
-  UseFormRegister,
-} from "react-hook-form";
-import FormSubheader from "../FormSubheader";
-import { TbasicConsumer } from "@/components/basic-consumer/ValidationSchema";
-import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Control,
+  Controller,
+  FieldErrors,
+  UseFormRegister,
+  UseFormWatch,
+} from "react-hook-form";
+import FormSubheader from "../header/FormSubheader";
 
-import { useEffect } from "react";
-import { useConsumerStore } from "@/store/ConsumerStore/ConsumerStore";
+import {
+  useGetAllCountriesQuery,
+  useLazyGetAllStatesQuery,
+} from "@/store/LMS/user/userApi";
+import { TbasicConsumer } from "../password/ValidationSchema";
 
 interface CommonPersonalInfoProps {
   register: UseFormRegister<TbasicConsumer>;
   errors: FieldErrors<TbasicConsumer>;
   control: Control<TbasicConsumer>;
+  watch: UseFormWatch<TbasicConsumer>;
 }
 
 const CommonPersonalInfo: React.FC<CommonPersonalInfoProps> = ({
   register,
   errors,
   control,
+  watch,
 }) => {
-  const { allCountries, getAllCountries, getAllStates, allStates } =
-    useConsumerStore();
-  useEffect(() => {
-    getAllCountries();
-  }, []);
+  const [getAllStates, { data: states }] = useLazyGetAllStatesQuery();
+  const allStates = states?.data;
+
+  const { data } = useGetAllCountriesQuery();
+  const allCountries = data?.data;
+  const selectedCountry = allCountries?.find(
+    (c) => c.name === watch("countryName"),
+  )?.name;
 
   return (
     <>
@@ -215,43 +223,6 @@ const CommonPersonalInfo: React.FC<CommonPersonalInfoProps> = ({
               </p>
             )}
           </div>
-          <div className="">
-            <label htmlFor="city" className="text-primary-gray block mb-1">
-              City
-            </label>
-            <input
-              type="text"
-              placeholder="Enter City"
-              id="city"
-              className=" w-full  border border-primary-gray p-2"
-              {...register("city")}
-            />
-            {errors.city && (
-              <p className="text-red-500 text-xs sm:text-sm">
-                {errors.city.message}
-              </p>
-            )}
-          </div>
-          <div className="">
-            <label
-              htmlFor="postalCode"
-              className="text-primary-gray block mb-1"
-            >
-              Postal Code
-            </label>
-            <input
-              type="text"
-              id="postalCode"
-              placeholder="Enter Postal Code"
-              className=" w-full  border border-primary-gray p-2"
-              {...register("postalCode")}
-            />
-            {errors.postalCode && (
-              <p className="text-red-500 text-xs sm:text-sm">
-                {errors.postalCode.message}
-              </p>
-            )}
-          </div>
 
           <div className="">
             <label htmlFor="province" className="text-primary-gray block mb-1">
@@ -315,7 +286,6 @@ const CommonPersonalInfo: React.FC<CommonPersonalInfoProps> = ({
                     <SelectValue placeholder="Choose country" />
                   </SelectTrigger>
 
-                  {}
                   <SelectContent className="bg-light-green">
                     {allStates?.map((country, index) => (
                       <SelectItem
@@ -333,6 +303,47 @@ const CommonPersonalInfo: React.FC<CommonPersonalInfoProps> = ({
 
             {errors.provinceName && (
               <p className="text-red-500">{errors.provinceName.message}</p>
+            )}
+          </div>
+
+          <div className="">
+            <label htmlFor="city" className="text-primary-gray block mb-1">
+              City
+            </label>
+            <input
+              type="text"
+              placeholder="Enter City"
+              id="city"
+              className=" w-full  border border-primary-gray p-2"
+              {...register("city")}
+            />
+            {errors.city && (
+              <p className="text-red-500 text-xs sm:text-sm">
+                {errors.city.message}
+              </p>
+            )}
+          </div>
+          <div className="">
+            <label
+              htmlFor="postalCode"
+              className="text-primary-gray block mb-1"
+            >
+              Postal Code
+            </label>
+            <input
+              id="postalCode"
+              placeholder="Enter Postal Code"
+              className=" w-full  border border-primary-gray p-2"
+              {...register("postalCode")}
+              type={selectedCountry === "Canada" ? "text" : "number"}
+              {...register("postalCode", {
+                valueAsNumber: selectedCountry !== "Canada",
+              })}
+            />
+            {errors.postalCode && (
+              <p className="text-red-500 text-xs sm:text-sm">
+                {errors.postalCode.message}
+              </p>
             )}
           </div>
         </div>

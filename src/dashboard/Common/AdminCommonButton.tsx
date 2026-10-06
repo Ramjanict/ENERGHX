@@ -14,7 +14,7 @@ const AdminCommonButton: React.FC<AdminCommonButtonProps> = ({
   return (
     <div>
       <button
-        className={`w-full bg-primary text-white py-2 px-4 rounded-md hover:bg-green-700 transition cursor-pointer ${className}`}
+        className={`w-full bg-primary text-white py-2 px-4 rounded-md hover:bg-green-700 transition cursor-pointer  disabled:bg-green-500 disabled:cursor-not-allowed ${className}`}
         {...props}
       >
         {children}

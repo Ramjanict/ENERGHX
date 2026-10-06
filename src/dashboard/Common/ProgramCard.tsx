@@ -1,7 +1,8 @@
-import { useAdminStore } from "@/store/AdminStore/AdminStore";
-import EditButton from "./EditButton";
+import CommonBorderWrapper from "@/common/button/CommonBorderWrapper";
+import { useDeleteProgramMutation } from "@/store/LMS/program/programApi";
+import React from "react";
 import DeleteButton from "./DeleteButton";
-import { useState } from "react";
+import EditButton from "./EditButton";
 
 type Program = {
   id: string;
@@ -18,24 +19,22 @@ type ProgramCardProps = {
 };
 
 const ProgramCard: React.FC<ProgramCardProps> = ({ program, onEdit }) => {
-  const { deleteProgram, getAllProgram } = useAdminStore();
-
-  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteProgram, { isLoading: isProgramDeleting, originalArgs }] =
+    useDeleteProgramMutation();
 
   const handleDelete = async () => {
+    if (!program?.id) return;
     try {
-      setIsDeleting(true);
-      await deleteProgram(program.id);
-      await getAllProgram();
+      await deleteProgram(program.id).unwrap();
     } catch (error) {
       console.error("Failed to delete program:", error);
-    } finally {
-      setIsDeleting(false);
     }
   };
 
+  const isDeleting = isProgramDeleting && originalArgs === program.id;
+
   return (
-    <div className="relative max-w-sm rounded-2xl overflow-hidden shadow-lg bg-white hover:shadow-xl transition-shadow duration-300 border">
+    <CommonBorderWrapper className="">
       <img
         className="w-full h-48 object-cover"
         src={program.thumbnail}
@@ -58,12 +57,12 @@ const ProgramCard: React.FC<ProgramCardProps> = ({ program, onEdit }) => {
         </div>
         <div className="flex justify-end items-center gap-2 pt-4">
           <EditButton onClick={onEdit}>Edit</EditButton>
-          <DeleteButton onClick={handleDelete}>
+          <DeleteButton disabled={isDeleting} onClick={handleDelete}>
             {isDeleting ? "Deleting..." : "Delete"}
           </DeleteButton>
         </div>
       </div>
-    </div>
+    </CommonBorderWrapper>
   );
 };
 

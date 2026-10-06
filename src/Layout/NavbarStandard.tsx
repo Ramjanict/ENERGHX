@@ -1,11 +1,12 @@
-import { useEffect, useState, useRef } from "react";
-import { Link } from "react-router-dom";
-import Logo from "@/assets/logo.svg";
-import userImg from "../assets/user.png";
-
-import { FiMenu } from "react-icons/fi";
-import MobileMenu from "./MobileMenu";
+import Logo from "@/assets/images/logo.svg";
+import userImg from "@/assets/images/user.png";
 import DropDown from "@/common/DropDown";
+import { RootState } from "@/store/store";
+import { useState } from "react";
+import { FiMenu } from "react-icons/fi";
+import { useSelector } from "react-redux";
+import { Link } from "react-router-dom";
+import MobileMenu from "./MobileMenu";
 
 const menuItems = [
   { menu: "Home", path: "/home" },
@@ -18,23 +19,8 @@ const menuItems = [
 
 const NavbarStandard = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null); // <- Ref for dropdown
 
-  // Detect outside click
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node)
-      ) {
-        setIsDropdownOpen(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+  const { user } = useSelector((state: RootState) => state.auth);
 
   const toggleMenu = () => setIsOpen(!isOpen);
 
@@ -42,7 +28,7 @@ const NavbarStandard = () => {
     <div className={` w-full z-10`}>
       <nav className="bg-white flex justify-between items-center px-4 xl:px-[5%] h-18 border-b border-[#E7E9E8] z-50 transition-all duration-300">
         <Link to="/">
-          <img src={Logo} alt="Logo" className="h-8" />
+          <img src={Logo} alt="Logo" className="h-8 cursor-pointer  " />
         </Link>
 
         <div className="flex gap-4 items-center">
@@ -61,22 +47,16 @@ const NavbarStandard = () => {
           </ul>
 
           <div className="flex items-center gap-4">
-            <div
-              className="flex gap-2 relative"
-              ref={dropdownRef} // <- Attach ref here
-            >
-              <img
-                src={userImg}
-                alt="User"
-                className="w-12 h-12 ring-2 ring-primary rounded-full cursor-pointer"
-                onClick={() => setIsDropdownOpen((prev) => !prev)}
+            <div className="flex gap-2 relative">
+              <DropDown
+                trigger={
+                  <img
+                    src={user?.data?.profile_photo || userImg}
+                    alt="User"
+                    className="w-12 h-12 ring-2 ring-primary rounded-full cursor-pointer"
+                  />
+                }
               />
-
-              {isDropdownOpen && (
-                <div className="absolute top-10 right-0 mt-2 z-50">
-                  <DropDown />
-                </div>
-              )}
             </div>
             <button
               onClick={toggleMenu}
@@ -84,6 +64,17 @@ const NavbarStandard = () => {
             >
               {!isOpen && <FiMenu />}
             </button>
+            <div className="hidden sm:block ">
+              <h2 className="text-[#112518] text-base">
+                {user?.data?.firstname && user?.data.lastname
+                  ? `${user?.data?.firstname} ${user?.data?.lastname}`
+                  : ""}
+              </h2>
+
+              <p className="text-primary font-semibold text-sm">
+                {user?.data?.userType}
+              </p>
+            </div>
           </div>
         </div>
 

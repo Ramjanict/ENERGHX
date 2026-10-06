@@ -1,14 +1,15 @@
-@import url("https://fonts.cdnfonts.com/css/poppins");
-@import url("https://fonts.cdnfonts.com/css/akira-expanded");
+@import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap");
+
 @import "tailwindcss";
 
 @custom-variant dark (&:is(.dark *));
 
 @theme {
   --color-primary-green: #2dad00;
+  --color-border: #c3bebe;
   --color-light-green: #eaf7e6;
   --color-primary-gray: #758179;
-  --color-secondary-gray: #394A3F;
+  --color-secondary-gray: #394a3f;
   --color-website-color-black: #212a31;
   --color-website-color-lightGray: #5f5f5f;
   --color-website-color-gray: #758179;
@@ -21,13 +22,12 @@
   --color-accent: var(--color-website-color-gray);
 
   /* Font Families */
-  --font-primary: "Poppins", sans-serif;
-  --font-secondary: "Akira Expanded", sans-serif;
+  --font-primary: "Inter", sans-serif;
 }
 
 body {
   font-family: var(--font-primary);
- }
+}
 
 :root {
   --sidebar: hsl(0 0% 98%);
@@ -65,7 +65,6 @@ html {
   scroll-behavior: smooth;
 }
 
-
 /* download certificate */
 .print-area {
   --tw-text-opacity: 1;
@@ -77,6 +76,7 @@ html {
 }
 
 /* Color overrides as before */
+
 .print-area .text-green-700 {
   color: #15803d !important; /* green-700 */
 }
@@ -85,6 +85,9 @@ html {
 }
 .print-area .bg-green-50 {
   background-color: #f0fdf4 !important; /* green-50 */
+}
+.print-area .bg-red-500 {
+  background-color: #f51717 !important; /* green-50 */
 }
 .print-area .border-green-200 {
   border-color: #bbf7d0 !important; /* green-200 */
@@ -147,4 +150,13 @@ html {
 /* Hide elements with .no-print inside .capturing */
 .capturing .no-print {
   display: none !important;
+}
+
+/* Hide scrollbars while preserving scrolling functionality */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }

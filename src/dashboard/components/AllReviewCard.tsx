@@ -1,6 +1,6 @@
-import React from "react";
+import { AllReview } from "@/store/LMS/review/types/reviewsType";
 import { Star } from "lucide-react"; // or use IoIosStar if you prefer
-import { AllReview } from "@/store/AdminStore/type/myReview";
+import React from "react";
 
 type ReviewCardProps = {
   allReview: AllReview[];

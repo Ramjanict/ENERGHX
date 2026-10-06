@@ -1,48 +1,77 @@
-import { useAdminStore } from "@/store/AdminStore/AdminStore";
-import { useConsumerStore } from "@/store/ConsumerStore/ConsumerStore";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { logout } from "@/store/auth/auth.slice";
+import { RootState } from "@/store/store";
+import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 
-const DropDown = () => {
-  const { token, logOutUser } = useConsumerStore();
-  const { DevToken, logout } = useAdminStore();
+interface Props {
+  trigger: React.ReactNode;
+  onUpdatePassword?: () => void;
+}
+
+const DropDown: React.FC<Props> = ({ trigger, onUpdatePassword }) => {
+  const { token } = useSelector((state: RootState) => state.auth);
+  const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    if (token) {
-      logOutUser();
-    } else if (DevToken) {
-      logout();
+    if (!token) return;
+
+    try {
+      dispatch(logout());
+      navigate("/login");
+    } catch (err) {
+      console.error("Logout failed", err);
     }
-    navigate("/login");
   };
 
-  const isLoggedIn = Boolean(token || DevToken);
-
   return (
-    <div className="w-48 bg-white shadow-lg rounded-lg z-50">
-      <Link
-        to="/admin-login"
-        className="block px-4 py-2 hover:bg-gray-100 cursor-pointer w-full"
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>{trigger}</DropdownMenuTrigger>
+      <DropdownMenuContent
+        align="end"
+        className={`${token ? "w-40" : "w-48"} border bg-white border-[#E7E9E8] shadow-lg`}
       >
-        Admin
-      </Link>
+        {token && onUpdatePassword && (
+          <DropdownMenuItem
+            onClick={onUpdatePassword}
+            className="cursor-pointer text-[#112518] hover:bg-primary/10! hover:text-primary! focus:bg-primary/10! focus:text-primary!"
+          >
+            Update Password
+          </DropdownMenuItem>
+        )}
 
-      {isLoggedIn ? (
-        <button
-          onClick={handleLogout}
-          className="block text-left px-4 py-2 text-red-600 hover:bg-gray-100 w-full cursor-pointer"
-        >
-          Logout
-        </button>
-      ) : (
-        <Link
-          to="/login"
-          className="block px-4 py-2 hover:bg-gray-100 cursor-pointer w-full"
-        >
-          Login
-        </Link>
-      )}
-    </div>
+        {token ? (
+          <DropdownMenuItem
+            onClick={handleLogout}
+            className="cursor-pointer text-red-600 hover:bg-red-50! hover:text-red-700! focus:bg-red-50! focus:text-red-700!"
+          >
+            Logout
+          </DropdownMenuItem>
+        ) : (
+          <DropdownMenuItem
+            asChild
+            className="cursor-pointer text-[#112518] hover:bg-primary/10! hover:text-primary! focus:bg-primary/10! focus:text-primary!"
+          >
+            <Link to="/login">Login</Link>
+          </DropdownMenuItem>
+        )}
+
+        {!token && (
+          <DropdownMenuItem
+            asChild
+            className="cursor-pointer text-[#112518] hover:bg-primary/10! hover:text-primary! focus:bg-primary/10! focus:text-primary!"
+          >
+            <Link to="/forgot-password">Forgot Password</Link>
+          </DropdownMenuItem>
+        )}
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 };
 

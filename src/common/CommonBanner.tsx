@@ -7,12 +7,12 @@ interface CoverBannerProps {
   onUpgrade?: () => void;
 }
 
-const CommonBanner = ({
+const CommonBanner: React.FC<CoverBannerProps> = ({
   name,
   role,
   imageUrl,
   onUpgrade,
-}: CoverBannerProps) => {
+}) => {
   return (
     <CommonWrapper>
       <div className="w-full flex items-center justify-between  rounded-lg py-10  bg-white px-4">
